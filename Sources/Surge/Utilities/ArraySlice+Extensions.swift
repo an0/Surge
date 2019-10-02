@@ -1,4 +1,4 @@
-// Copyright © 2014-2018 the Surge contributors
+// Copyright © 2014-2019 the Surge contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,15 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import Surge
-import XCTest
+import Foundation
 
-class PowerTests: XCTestCase {
+extension ArraySlice: UnsafeMemoryAccessible, UnsafeMutableMemoryAccessible {
+    public func withUnsafeMemory<Result>(_ action: (UnsafeMemory<Element>) throws -> Result) rethrows -> Result {
+        return try withUnsafeBufferPointer { ptr in
+            guard let base = ptr.baseAddress else {
+                fatalError("ArraySlice is missing its pointer")
+            }
+            let memory = UnsafeMemory(pointer: base, stride: 1, count: ptr.count)
+            return try action(memory)
+        }
+    }
 
-    let vector = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
-
-    func testPower() {
-        let powered = pow(vector, 2.0)
-        XCTAssertEqual(powered, [1.0, 4.0, 9.0, 16.0, 25.0, 36.0])
+    public mutating func withUnsafeMutableMemory<Result>(_ action: (UnsafeMutableMemory<Element>) throws -> Result) rethrows -> Result {
+        return try withUnsafeMutableBufferPointer { ptr in
+            guard let base = ptr.baseAddress else {
+                fatalError("ArraySlice is missing its pointer")
+            }
+            let memory = UnsafeMutableMemory(pointer: base, stride: 1, count: ptr.count)
+            return try action(memory)
+        }
     }
 }

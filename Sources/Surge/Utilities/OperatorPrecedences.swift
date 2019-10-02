@@ -1,4 +1,4 @@
-// Copyright © 2014-2018 the Surge contributors
+// Copyright © 2014-2019 the Surge contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,19 +19,36 @@
 // THE SOFTWARE.
 
 import Foundation
-import Surge
-import XCTest
 
-class ExponentialTests: XCTestCase {
-    let n = 10_000
+// MARK: - Element-wise Addition
 
-    func test_exp() {
-        let values = (0...n).map { _ in Double(arc4random_uniform(10)) }
-        measureAndValidateMappedFunctionWithAccuracy(source: values, member: exp, mapped: exp, accuracy: 1e-4)
-    }
+infix operator .+: AdditionPrecedence
+infix operator .+=: AssignmentPrecedence
 
-    func test_exp2() {
-        let values = (0...n).map { _ in Double(arc4random_uniform(10)) }
-        measureAndValidateMappedFunctionWithAccuracy(source: values, member: exp2, mapped: exp2, accuracy: 1e-4)
-    }
-}
+// MARK: - Element-wise Subtraction
+
+infix operator .-: AdditionPrecedence
+infix operator .-=: AssignmentPrecedence
+
+// MARK: - Element-wise Multiplication
+
+infix operator .*: MultiplicationPrecedence
+infix operator .*=: AssignmentPrecedence
+
+// MARK: - Element-wise Division
+
+infix operator ./: MultiplicationPrecedence
+infix operator ./=: AssignmentPrecedence
+
+// MARK: - Element-wise Modulo
+
+infix operator .%: MultiplicationPrecedence
+infix operator .%=: AssignmentPrecedence
+
+// MARK: - Dot product
+
+infix operator •: MultiplicationPrecedence
+
+// MARK: - Matrix Transpose
+
+postfix operator ′

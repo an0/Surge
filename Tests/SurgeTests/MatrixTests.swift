@@ -1,4 +1,4 @@
-// Copyright © 2014-2018 the Surge contributors
+// Copyright © 2014-2019 the Surge contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,78 +21,962 @@
 @testable import Surge
 import XCTest
 
+// swiftlint:disable nesting type_body_length
+
 class MatrixTests: XCTestCase {
-    let floatAccuracy: Float = 1e-8
-    let doubleAccuracy: Double = 1e-11
+    func test_init_rows_columns_repeatedValue() {
+        typealias Scalar = Double
 
-    var matrix: Matrix<Double> = Matrix<Double>([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])
+        let actual: Matrix<Scalar> = Matrix(rows: 2, columns: 3, repeatedValue: 42.0)
+        let expected: Matrix<Scalar> = [
+            [42.0, 42.0, 42.0],
+            [42.0, 42.0, 42.0],
+        ]
 
-    func testInit() {
-        let m1 = Matrix([[1.0, 2.0]])
-        XCTAssertEqual(m1.grid, [1.0, 2.0])
-
-        let m2 = Matrix([[1, 1], [1, -1]])
-        XCTAssertEqual(m2.grid, [1, 1, 1, -1])
+        XCTAssertEqual(actual, expected)
     }
 
-    func testSubscriptRow() {
+    func test_init_contents() {
+        typealias Scalar = Double
+
+        let contents: [[Scalar]] = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
+        let actual: Matrix<Scalar> = Matrix(contents)
+        let expected: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    func test_init_row() {
+        typealias Scalar = Double
+
+        let row: [Scalar] = [1, 2, 3, 4]
+
+        let actual: Matrix<Scalar> = Matrix(row: row)
+        let expected: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+        ]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    func test_init_column() {
+        typealias Scalar = Double
+
+        let column: [Scalar] = [1, 2, 3, 4]
+
+        let actual: Matrix<Scalar> = Matrix(column: column)
+        let expected: Matrix<Scalar> = [
+            [1],
+            [2],
+            [3],
+            [4],
+        ]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    func test_init_rows_columns_grid() {
+        typealias Scalar = Double
+
+        let grid: [Scalar] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+        let actual: Matrix<Scalar> = Matrix(rows: 3, columns: 4, grid: grid)
+        let expected: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    func test_init_arrayLiteral() {
+        typealias Scalar = Double
+
+        let contents: [[Scalar]] = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+        let matrix: Matrix<Scalar> = Matrix(contents)
+
+        let actual = matrix.grid
+        let expected: [Scalar] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    func test_init_identity() {
+        typealias Scalar = Double
+
+        let actual: Matrix<Scalar> = Matrix.identity(size: 3)
+        let expected: Matrix<Scalar> = [
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [0.0, 0.0, 1.0],
+        ]
+        XCTAssertEqual(actual, expected)
+    }
+
+    func test_init_eye() {
+        typealias Scalar = Double
+
+        let actual_2x3: Matrix<Scalar> = Matrix.eye(rows: 2, columns: 3)
+        let expected_2x3: Matrix<Scalar> = [
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+        ]
+        XCTAssertEqual(actual_2x3, expected_2x3)
+
+        let actual_3x2: Matrix<Scalar> = Matrix.eye(rows: 3, columns: 2)
+        let expected_3x2: Matrix<Scalar> = [
+            [1.0, 0.0],
+            [0.0, 1.0],
+            [0.0, 0.0],
+        ]
+        XCTAssertEqual(actual_3x2, expected_3x2)
+
+        let actual_3x3: Matrix<Scalar> = Matrix.eye(rows: 3, columns: 3)
+        let expected_3x3: Matrix<Scalar> = [
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [0.0, 0.0, 1.0],
+        ]
+        XCTAssertEqual(actual_3x3, expected_3x3)
+    }
+
+    func test_init_diagonal_repeatedValue() {
+        typealias Scalar = Double
+
+        let actual_2x3: Matrix<Scalar> = Matrix.diagonal(rows: 2, columns: 3, repeatedValue: 42.0)
+        let expected_2x3: Matrix<Scalar> = [
+            [42.0, 0.0, 0.0],
+            [0.0, 42.0, 0.0],
+        ]
+        XCTAssertEqual(actual_2x3, expected_2x3)
+
+        let actual_3x2: Matrix<Scalar> = Matrix.diagonal(rows: 3, columns: 2, repeatedValue: 42.0)
+        let expected_3x2: Matrix<Scalar> = [
+            [42.0, 0.0],
+            [0.0, 42.0],
+            [0.0, 0.0],
+        ]
+        XCTAssertEqual(actual_3x2, expected_3x2)
+
+        let actual_3x3: Matrix<Scalar> = Matrix.diagonal(rows: 3, columns: 3, repeatedValue: 42.0)
+        let expected_3x3: Matrix<Scalar> = [
+            [42.0, 0.0, 0.0],
+            [0.0, 42.0, 0.0],
+            [0.0, 0.0, 42.0],
+        ]
+        XCTAssertEqual(actual_3x3, expected_3x3)
+    }
+
+    func test_init_diagonal_scalars() {
+        typealias Scalar = Double
+
+        let actual_2x3: Matrix<Scalar> = Matrix.diagonal(rows: 2, columns: 3, scalars: [1, 2])
+        let expected_2x3: Matrix<Scalar> = [
+            [1.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0],
+        ]
+        XCTAssertEqual(actual_2x3, expected_2x3)
+
+        let actual_3x2: Matrix<Scalar> = Matrix.diagonal(rows: 3, columns: 2, scalars: [1, 2])
+        let expected_3x2: Matrix<Scalar> = [
+            [1.0, 0.0],
+            [0.0, 2.0],
+            [0.0, 0.0],
+        ]
+        XCTAssertEqual(actual_3x2, expected_3x2)
+
+        let actual_3x3: Matrix<Scalar> = Matrix.diagonal(rows: 3, columns: 3, scalars: [1, 2, 3])
+        let expected_3x3: Matrix<Scalar> = [
+            [1.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [0.0, 0.0, 3.0],
+        ]
+        XCTAssertEqual(actual_3x3, expected_3x3)
+    }
+
+    // MARK: - Subscript
+
+    func test_subscript_row_get() {
+        typealias Scalar = Double
+
+        let matrix: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
         XCTAssertEqual(matrix[row: 0], [1, 2, 3, 4])
         XCTAssertEqual(matrix[row: 1], [5, 6, 7, 8])
     }
 
-    func testSubscriptColumn() {
+    func test_subscript_column_get() {
+        typealias Scalar = Double
+
+        let matrix: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
         XCTAssertEqual(matrix[column: 0], [1, 5, 9])
         XCTAssertEqual(matrix[column: 1], [2, 6, 10])
     }
 
-    func testSetRow() {
+    func test_subscript_row_set() {
+        typealias Scalar = Double
+
+        var matrix: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
         matrix[row: 0] = [13.0, 14.0, 15.0, 16.0]
-        XCTAssertTrue(matrix == Matrix<Double>([[13, 14, 15, 16], [5, 6, 7, 8], [9, 10, 11, 12]]))
+
+        let expected: Matrix<Scalar> = [
+            [13, 14, 15, 16],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
+        XCTAssertEqual(matrix, expected)
     }
 
-    func testSetColumn() {
+    func test_subscript_column_set() {
+        typealias Scalar = Double
+
+        var matrix: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
         matrix[column: 0] = [20, 30, 40]
-        XCTAssertEqual(matrix, Matrix<Double>([[20, 2, 3, 4], [30, 6, 7, 8], [40, 10, 11, 12]]))
+
+        let expected: Matrix<Scalar> = [
+            [20, 2, 3, 4],
+            [30, 6, 7, 8],
+            [40, 10, 11, 12],
+        ]
+
+        XCTAssertEqual(matrix, expected)
     }
 
-    func testMatrixPower() {
-        let expectedResult = Matrix<Double>([[1, 4, 9, 16], [25, 36, 49, 64], [81, 100, 121, 144]])
-        XCTAssertEqual(pow(matrix, 2), expectedResult)
+    // MARK: - Addition
+
+    func test_add_matrix_matrix_float() {
+        typealias Scalar = Float
+
+        let matrix: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
+        let actual = matrix + matrix
+        let expected: Matrix<Scalar> = [
+            [2, 4, 6, 8],
+            [10, 12, 14, 16],
+            [18, 20, 22, 24],
+        ]
+
+        XCTAssertEqual(actual, expected)
     }
 
-    func testMatrixAddition() {
-        let expectedResult: Matrix<Double> = Matrix<Double>([[2, 4, 6, 8], [10, 12, 14, 16], [18, 20, 22, 24]])
-        XCTAssertEqual(matrix + matrix, expectedResult)
+    func test_add_matrix_matrix_double() {
+        typealias Scalar = Double
+
+        let matrix: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
+        let actual = matrix + matrix
+        let expected: Matrix<Scalar> = [
+            [2, 4, 6, 8],
+            [10, 12, 14, 16],
+            [18, 20, 22, 24],
+        ]
+
+        XCTAssertEqual(actual, expected)
     }
 
-    func testMatrixSubtraction() {
-        let expectedResult: Matrix<Double> = Matrix<Double>([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
-        XCTAssertEqual(matrix - matrix, expectedResult)
+    // MARK: - Addition: In Place
+
+    func test_add_in_place_matrix_matrix_float() {
+        typealias Scalar = Float
+
+        let matrix: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
+        var actual = matrix
+        actual += matrix
+
+        let expected: Matrix<Scalar> = [
+            [2, 4, 6, 8],
+            [10, 12, 14, 16],
+            [18, 20, 22, 24],
+        ]
+
+        XCTAssertEqual(actual, expected)
     }
 
-    func testElementWiseMultiplication() {
-        let matrix2 = Matrix<Double>([[2, 3, 4, 5], [6, 7, 8, 9], [10, 11, 12, 13]])
-        XCTAssertEqual(elmul(matrix, matrix2), Matrix<Double>([[2, 6, 12, 20], [30, 42, 56, 72], [90, 110, 132, 156]]))
+    func test_add_in_place_matrix_matrix_double() {
+        typealias Scalar = Double
+
+        let matrix: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
+        var actual = matrix
+        actual += matrix
+
+        let expected: Matrix<Scalar> = [
+            [2, 4, 6, 8],
+            [10, 12, 14, 16],
+            [18, 20, 22, 24],
+        ]
+
+        XCTAssertEqual(actual, expected)
     }
 
-    func testDeterminantFloat() {
-        let matrix = Matrix<Float>([[1, 2], [5, 6]])
-        XCTAssertEqual(det(matrix)!, Float(6 - 10), accuracy: floatAccuracy)
+    // MARK: - Subtraction
+
+    func test_sub_matrix_matrix_float() {
+        typealias Scalar = Float
+
+        let matrix: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
+        let actual = matrix - matrix
+        let expected: Matrix<Scalar> = [
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+        ]
+
+        XCTAssertEqual(actual, expected)
     }
 
-    func testDeterminantDouble() {
-        let matrix = Matrix<Double>([[-4, -5], [5, 6]])
-        XCTAssertEqual(det(matrix)!, Double(-24 + 25), accuracy: doubleAccuracy)
+    func test_sub_matrix_matrix_double() {
+        typealias Scalar = Double
+
+        let matrix: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
+        let actual = matrix - matrix
+        let expected: Matrix<Scalar> = [
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+        ]
+
+        XCTAssertEqual(actual, expected)
     }
 
-    func testMultiplyEmpty() {
-        let x = Matrix<Float>([[1]])
-        let y = Matrix<Float>([[]])
-        let result = x*y
+    // MARK: - Subtraction: In Place
+
+    func test_sub_in_place_matrix_matrix_float() {
+        typealias Scalar = Float
+
+        let matrix: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
+        var actual = matrix
+        actual -= matrix
+
+        let expected: Matrix<Scalar> = [
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+        ]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    func test_sub_in_place_matrix_matrix_double() {
+        typealias Scalar = Double
+
+        let matrix: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
+        var actual = matrix
+        actual -= matrix
+
+        let expected: Matrix<Scalar> = [
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+        ]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    // MARK: - Multiply Addition
+
+    func test_muladd_matrix_matrix_scalar_float() {
+        typealias Scalar = Float
+
+        let matrix: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
+        let actual = matrix + matrix
+        let expected: Matrix<Scalar> = [
+            [2, 4, 6, 8],
+            [10, 12, 14, 16],
+            [18, 20, 22, 24],
+        ]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    func test_muladd_matrix_matrix_scalar_double() {
+        typealias Scalar = Double
+
+        let matrix: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
+        let actual = muladd(matrix, matrix, 2.0)
+        let expected: Matrix<Scalar> = [
+            [3, 6, 9, 12],
+            [15, 18, 21, 24],
+            [27, 30, 33, 36],
+        ]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    // MARK: - Multiply Addition: In Place
+
+    func test_muladd_in_place_matrix_matrix_scalar_float() {
+        typealias Scalar = Float
+
+        let matrix: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
+        let actual = muladd(matrix, matrix, 2.0)
+        let expected: Matrix<Scalar> = [
+            [3, 6, 9, 12],
+            [15, 18, 21, 24],
+            [27, 30, 33, 36],
+        ]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    func test_muladd_in_place_matrix_matrix_scalar_double() {
+        typealias Scalar = Double
+
+        let matrix: Matrix<Scalar> = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ]
+
+        var actual = matrix
+        actual += matrix
+
+        let expected: Matrix<Scalar> = [
+            [2, 4, 6, 8],
+            [10, 12, 14, 16],
+            [18, 20, 22, 24],
+        ]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    // MARK: - Multiplication
+
+    func test_mul_matrix_matrix_float() {
+        typealias Scalar = Float
+
+        let lhs: Matrix<Scalar> = [
+            [2, 4],
+            [10, 12],
+            [18, 20],
+        ]
+
+        let rhs: Matrix<Scalar> = [
+            [2, 4, 6],
+            [10, 12, 14],
+        ]
+
+        let actual = lhs * rhs
+        let expected: Matrix<Scalar> = [
+            [44, 56, 68],
+            [140, 184, 228],
+            [236, 312, 388],
+        ]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    func test_mul_matrix_matrix_double() {
+        typealias Scalar = Double
+
+        let lhs: Matrix<Scalar> = [
+            [2, 4],
+            [10, 12],
+            [18, 20],
+        ]
+
+        let rhs: Matrix<Scalar> = [
+            [2, 4, 6],
+            [10, 12, 14],
+        ]
+
+        let actual = lhs * rhs
+        let expected: Matrix<Scalar> = [
+            [44, 56, 68],
+            [140, 184, 228],
+            [236, 312, 388],
+        ]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    func test_mul_matrix_vector_float() {
+        typealias Scalar = Float
+
+        let lhs: Matrix<Scalar> = [
+            [1, 2, 3],
+            [4, 5, 6],
+        ]
+
+        let rhs: Vector<Scalar> = [1, 2, 4]
+
+        let actual = lhs * rhs
+        let expected: Vector<Scalar> = [17, 38]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    func test_mul_matrix_vector_double() {
+        typealias Scalar = Double
+
+        let lhs: Matrix<Scalar> = [
+            [1, 2, 3],
+            [4, 5, 6],
+        ]
+
+        let rhs: Vector<Scalar> = [1, 2, 4]
+
+        let actual = lhs * rhs
+        let expected: Vector<Scalar> = [17, 38]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    func test_mul_empty_float() {
+        typealias Scalar = Float
+
+        let lhs: Matrix<Scalar> = [
+            [1]
+        ]
+        let rhs: Matrix<Scalar> = [
+            []
+        ]
+
+        let result = lhs * rhs
 
         XCTAssertEqual(result.rows, 1)
         XCTAssertEqual(result.columns, 0)
     }
+
+    func test_mul_empty_double() {
+        typealias Scalar = Double
+
+        let lhs: Matrix<Scalar> = [
+            [1]
+        ]
+        let rhs: Matrix<Scalar> = [
+            []
+        ]
+
+        let result = lhs * rhs
+
+        XCTAssertEqual(result.rows, 1)
+        XCTAssertEqual(result.columns, 0)
+    }
+
+    // MARK: - Division
+
+    func test_div_matrix_scalar_float() {
+        typealias Scalar = Float
+
+        let lhs: Matrix<Scalar> = [
+            [2, 4, 6],
+            [10, 12, 14],
+        ]
+
+        let rhs: Scalar = 2
+
+        let actual = lhs / rhs
+        let expected: Matrix<Scalar> = [
+            [1, 2, 3],
+            [5, 6, 7],
+        ]
+
+        XCTAssertEqual(actual, expected, accuracy: 1e-6)
+    }
+
+    func test_div_matrix_scalar_double() {
+        typealias Scalar = Double
+
+        let lhs: Matrix<Scalar> = [
+            [2, 4, 6],
+            [10, 12, 14],
+        ]
+
+        let rhs: Scalar = 2
+
+        let actual = lhs / rhs
+        let expected: Matrix<Scalar> = [
+            [1, 2, 3],
+            [5, 6, 7],
+        ]
+
+        XCTAssertEqual(actual, expected, accuracy: 1e-8)
+    }
+
+    func test_div_matrix_matrix_float() {
+        typealias Scalar = Float
+
+        let lhs: Matrix<Scalar> = [
+            [2, 3],
+            [2, 2],
+        ]
+
+        let rhs: Matrix<Scalar> = [
+            [-1, 3/2],
+            [1, -1],
+        ]
+
+        let actual = lhs / rhs
+        let expected: Matrix<Scalar> = [
+            [10, 12],
+            [8, 10],
+        ]
+
+        XCTAssertEqual(actual, expected, accuracy: 1e-5)
+    }
+
+    func test_div_matrix_matrix_double() {
+        typealias Scalar = Double
+
+        let lhs: Matrix<Scalar> = [
+            [2, 3],
+            [2, 2],
+        ]
+
+        let rhs: Matrix<Scalar> = [
+            [-1, 3/2],
+            [1, -1],
+        ]
+
+        let actual = lhs / rhs
+        let expected: Matrix<Scalar> = [
+            [10, 12],
+            [8, 10],
+        ]
+
+        XCTAssertEqual(actual, expected, accuracy: 1e-8)
+    }
+
+    // MARK: - Power
+
+    func test_pow_matrix_scalar_float() {
+        typealias Scalar = Float
+
+        let lhs: Matrix<Scalar> = [
+            [1, 2, 3],
+            [4, 5, 6],
+        ]
+
+        let rhs: Scalar = 2
+
+        let actual = pow(lhs, rhs)
+        let expected: Matrix<Scalar> = .init(
+            lhs.map { row in
+                row.map { pow($0, rhs) }
+            }
+        )
+
+        XCTAssertEqual(actual, expected, accuracy: 1e-5)
+    }
+
+    func test_pow_matrix_scalar_double() {
+        typealias Scalar = Double
+
+        let lhs: Matrix<Scalar> = [
+            [1, 2, 3],
+            [4, 5, 6],
+        ]
+
+        let rhs: Scalar = 2
+
+        let actual = pow(lhs, rhs)
+        let expected: Matrix<Scalar> = .init(
+            lhs.map { row in
+                row.map { pow($0, rhs) }
+            }
+        )
+
+        XCTAssertEqual(actual, expected, accuracy: 1e-8)
+    }
+
+    // MARK: - Exponential
+
+    func test_exp_matrix_float() {
+        typealias Scalar = Float
+
+        let lhs: Matrix<Scalar> = [
+            [1, 2, 3],
+            [4, 5, 6],
+        ]
+
+        let actual = exp(lhs)
+        let expected: Matrix<Scalar> = .init(
+            lhs.map { row in
+                row.map { exp($0) }
+            }
+        )
+
+        XCTAssertEqual(actual, expected, accuracy: 1e-3)
+    }
+
+    func test_exp_matrix_double() {
+        typealias Scalar = Double
+
+        let lhs: Matrix<Scalar> = [
+            [1, 2, 3],
+            [4, 5, 6],
+        ]
+
+        let actual = exp(lhs)
+        let expected: Matrix<Scalar> = .init(
+            lhs.map { row in
+                row.map { exp($0) }
+            }
+        )
+
+        XCTAssertEqual(actual, expected, accuracy: 1e-8)
+    }
+
+    // MARK: - Summation
+
+    func test_sum_matrix_rows_double() {
+        typealias Scalar = Double
+
+        let lhs: Matrix<Scalar> = [
+            [1, 2, 3],
+            [4, 5, 6],
+        ]
+
+        let actual = sum(lhs, axies: .row)
+        let expected: Matrix<Scalar> = [
+            [6],
+            [15],
+        ]
+
+        XCTAssertEqual(actual, expected, accuracy: 1e-5)
+    }
+
+    func test_sum_matrix_rows_float() {
+        typealias Scalar = Float
+
+        let lhs: Matrix<Scalar> = [
+            [1, 2, 3],
+            [4, 5, 6],
+        ]
+
+        let actual = sum(lhs, axies: .row)
+        let expected: Matrix<Scalar> = [
+            [6],
+            [15],
+        ]
+
+        XCTAssertEqual(actual, expected, accuracy: 1e-5)
+    }
+
+    func test_sum_matrix_columns_double() {
+        typealias Scalar = Double
+
+        let lhs: Matrix<Scalar> = [
+            [1, 2, 3],
+            [4, 5, 6],
+        ]
+
+        let actual = sum(lhs, axies: .column)
+        let expected: Matrix<Scalar> = [
+            [5, 7, 9],
+        ]
+
+        XCTAssertEqual(actual, expected, accuracy: 1e-5)
+    }
+
+    func test_sum_matrix_columns_float() {
+        typealias Scalar = Float
+
+        let lhs: Matrix<Scalar> = [
+            [1, 2, 3],
+            [4, 5, 6],
+        ]
+
+        let actual = sum(lhs, axies: .column)
+        let expected: Matrix<Scalar> = [
+            [5, 7, 9],
+        ]
+
+        XCTAssertEqual(actual, expected, accuracy: 1e-5)
+    }
+
+    // MARK: - Inverse
+
+    func test_inv_matrix_double() {
+        typealias Scalar = Double
+
+        let lhs: Matrix<Scalar> = [
+            [2, 3],
+            [2, 2],
+        ]
+
+        let actual = inv(lhs)
+        let expected: Matrix<Scalar> = [
+            [-1, 1.5],
+            [1, -1],
+        ]
+
+        XCTAssertEqual(actual, expected, accuracy: 1e-8)
+    }
+
+    func test_inv_matrix_float() {
+        typealias Scalar = Float
+
+        let lhs: Matrix<Scalar> = [
+            [2, 3],
+            [2, 2],
+        ]
+
+        let actual = inv(lhs)
+        let expected: Matrix<Scalar> = [
+            [-1, 1.5],
+            [1, -1],
+        ]
+
+        XCTAssertEqual(actual, expected, accuracy: 1e-6)
+    }
+
+    // MARK: - Transpose
+
+    func test_tranpose_matrix_double() {
+        typealias Scalar = Double
+
+        let lhs: Matrix<Scalar> = [
+            [1, 2, 3],
+            [4, 5, 6],
+        ]
+
+        let actual = transpose(lhs)
+        let expected: Matrix<Scalar> = [
+            [1, 4],
+            [2, 5],
+            [3, 6],
+        ]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    func test_tranpose_matrix_float() {
+        typealias Scalar = Float
+
+        let lhs: Matrix<Scalar> = [
+            [1, 2, 3],
+            [4, 5, 6],
+        ]
+
+        let actual = transpose(lhs)
+        let expected: Matrix<Scalar> = [
+            [1, 4],
+            [2, 5],
+            [3, 6],
+        ]
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    // MARK: - Determinant
+
+    func test_det_matrix_double() {
+        typealias Scalar = Double
+
+        let lhs: Matrix<Scalar> = [
+            [1, 2],
+            [5, 6],
+        ]
+
+        let actual = det(lhs)
+        let expected: Scalar = 6 - 10
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    func test_det_matrix_float() {
+        typealias Scalar = Float
+
+        let lhs: Matrix<Scalar> = [
+            [1, 2],
+            [5, 6],
+        ]
+
+        let actual = det(lhs)
+        let expected: Scalar = 6 - 10
+
+        XCTAssertEqual(actual, expected)
+    }
+
+    // MARK: - Eigen-Decomposition
 
     func complexVectorMatches<T: FloatingPoint>(_ a: [(T, T)], _ b: [(T, T)], accuracy: T) -> Bool {
         guard a.count == b.count else {
@@ -103,7 +987,7 @@ class MatrixTests: XCTestCase {
         }) == nil
     }
 
-    func testEigenDecompositionTrivialGeneric<T: FloatingPoint & ExpressibleByFloatLiteral>(defaultAccuracy: T, eigendecompostionFn: ((Matrix<T>) throws -> MatrixEigenDecompositionResult<T>)) throws {
+    func eigen_decomposition_trivial_generic<T: FloatingPoint & ExpressibleByFloatLiteral>(defaultAccuracy: T, eigendecompostionFn: ((Matrix<T>) throws -> MatrixEigenDecompositionResult<T>)) throws {
         let matrix = Matrix<T>([
             [1, 0, 0],
             [0, 2, 0],
@@ -122,17 +1006,19 @@ class MatrixTests: XCTestCase {
         XCTAssertTrue(complexVectorMatches(flatRight, expectedEigenVector, accuracy: defaultAccuracy))
     }
 
-    func testEigenDecompositionTrivial() throws {
-        try testEigenDecompositionTrivialGeneric(defaultAccuracy: doubleAccuracy) { (m: Matrix<Double>) throws -> MatrixEigenDecompositionResult<Double> in
+    func test_eigen_decomposition_trivial() throws {
+        typealias Scalar = Double
+
+        try eigen_decomposition_trivial_generic(defaultAccuracy: 1e-11) { (m: Matrix<Scalar>) throws -> MatrixEigenDecompositionResult<Double> in
             try eigenDecompose(m)
         }
-        try testEigenDecompositionTrivialGeneric(defaultAccuracy: floatAccuracy) { (m: Matrix<Float>) throws -> MatrixEigenDecompositionResult<Float> in
+        try eigen_decomposition_trivial_generic(defaultAccuracy: 1e-8) { (m: Matrix<Float>) throws -> MatrixEigenDecompositionResult<Float> in
             try eigenDecompose(m)
         }
     }
 
     // Example from https://docs.scipy.org/doc/numpy/reference/generated/numpy.linalg.eig.html
-    func testEigenDecompositionComplexResultsNumpyExampleGeneric<T: FloatingPoint & ExpressibleByFloatLiteral>(defaultAccuracy: T, eigendecompostionFn: ((Matrix<T>) throws -> MatrixEigenDecompositionResult<T>)) throws {
+    func eigen_decomposition_complex_results_numpy_example_generic<T: FloatingPoint & ExpressibleByFloatLiteral>(defaultAccuracy: T, eigendecompostionFn: ((Matrix<T>) throws -> MatrixEigenDecompositionResult<T>)) throws {
         let matrix = Matrix<T>([
             [1, -1],
             [1, 1],
@@ -149,18 +1035,20 @@ class MatrixTests: XCTestCase {
         XCTAssertTrue(complexVectorMatches(flatRight, expectedEigenVector, accuracy: 0.000_001))
     }
 
-    func testEigenDecompositionComplexResultsNumpyExample() throws {
-        try testEigenDecompositionComplexResultsNumpyExampleGeneric(defaultAccuracy: doubleAccuracy) { (m: Matrix<Double>) throws -> MatrixEigenDecompositionResult<Double> in
+    func test_eigen_decomposition_complex_results_numpy_example() throws {
+        typealias Scalar = Double
+
+        try eigen_decomposition_complex_results_numpy_example_generic(defaultAccuracy: 1e-11) { (m: Matrix<Scalar>) throws -> MatrixEigenDecompositionResult<Double> in
             try eigenDecompose(m)
         }
-        try testEigenDecompositionComplexResultsNumpyExampleGeneric(defaultAccuracy: floatAccuracy) { (m: Matrix<Float>) throws -> MatrixEigenDecompositionResult<Float> in
+        try eigen_decomposition_complex_results_numpy_example_generic(defaultAccuracy: 1e-8) { (m: Matrix<Float>) throws -> MatrixEigenDecompositionResult<Float> in
             try eigenDecompose(m)
         }
     }
 
     // Example from Intel's DGEEV documentation
     // https://software.intel.com/sites/products/documentation/doclib/mkl_sa/11/mkl_lapack_examples/dgeev.htm
-    func testEigenDecompositionComplexResultsDGEEVExampleGeneric<T: FloatingPoint & ExpressibleByFloatLiteral>(defaultAccuracy: T, eigendecompostionFn: ((Matrix<T>) throws -> MatrixEigenDecompositionResult<T>)) throws {
+    func eigen_decomposition_complex_results_dgeev_example_generic<T: FloatingPoint & ExpressibleByFloatLiteral>(defaultAccuracy: T, eigendecompostionFn: ((Matrix<T>) throws -> MatrixEigenDecompositionResult<T>)) throws {
         let matrix = Matrix<T>(rows: 5, columns: 5, grid: [
             -1.01, 0.86, -4.60, 3.31, -4.81,
             3.98, 0.53, -7.04, 5.29, 3.55,
@@ -198,17 +1086,21 @@ class MatrixTests: XCTestCase {
         }
     }
 
-    func testEigenDecompositionComplexResultsDGEEVExample() throws {
-        try testEigenDecompositionComplexResultsDGEEVExampleGeneric(defaultAccuracy: doubleAccuracy) { (m: Matrix<Double>) throws -> MatrixEigenDecompositionResult<Double> in
+    func test_eigen_decomposition_complex_results_dgeev_example() throws {
+        typealias Scalar = Double
+
+        try eigen_decomposition_complex_results_dgeev_example_generic(defaultAccuracy: 1e-11) { (m: Matrix<Scalar>) throws -> MatrixEigenDecompositionResult<Double> in
             try eigenDecompose(m)
         }
-        try testEigenDecompositionComplexResultsDGEEVExampleGeneric(defaultAccuracy: floatAccuracy) { (m: Matrix<Float>) throws -> MatrixEigenDecompositionResult<Float> in
+        try eigen_decomposition_complex_results_dgeev_example_generic(defaultAccuracy: 1e-8) { (m: Matrix<Float>) throws -> MatrixEigenDecompositionResult<Float> in
             try eigenDecompose(m)
         }
     }
 
-    func testEigenDecomposeThrowsWhenNotSquare() throws {
-        let matrix = Matrix<Double>([
+    func test_eigen_decompose_throws_when_not_square() throws {
+        typealias Scalar = Double
+
+        let matrix = Matrix<Scalar>([
             [1, 0, 0],
             [0, 2, 0],
         ])

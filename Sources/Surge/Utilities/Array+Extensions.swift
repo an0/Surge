@@ -1,4 +1,4 @@
-// Copyright © 2014-2018 the Surge contributors
+// Copyright © 2014-2019 the Surge contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,11 +20,11 @@
 
 import Foundation
 
-extension ArraySlice: UnsafeMemoryAccessible, UnsafeMutableMemoryAccessible {
+extension Array: UnsafeMemoryAccessible, UnsafeMutableMemoryAccessible {
     public func withUnsafeMemory<Result>(_ action: (UnsafeMemory<Element>) throws -> Result) rethrows -> Result {
         return try withUnsafeBufferPointer { ptr in
             guard let base = ptr.baseAddress else {
-                fatalError("ArraySlice is missing its pointer")
+                fatalError("Array is missing its pointer")
             }
             let memory = UnsafeMemory(pointer: base, stride: 1, count: ptr.count)
             return try action(memory)
@@ -34,7 +34,7 @@ extension ArraySlice: UnsafeMemoryAccessible, UnsafeMutableMemoryAccessible {
     public mutating func withUnsafeMutableMemory<Result>(_ action: (UnsafeMutableMemory<Element>) throws -> Result) rethrows -> Result {
         return try withUnsafeMutableBufferPointer { ptr in
             guard let base = ptr.baseAddress else {
-                fatalError("ArraySlice is missing its pointer")
+                fatalError("Array is missing its pointer")
             }
             let memory = UnsafeMutableMemory(pointer: base, stride: 1, count: ptr.count)
             return try action(memory)

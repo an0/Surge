@@ -1,4 +1,4 @@
-// Copyright © 2014-2018 the Surge contributors
+// Copyright © 2014-2019 the Surge contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,26 +18,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import Foundation
+import XCTest
 
-extension Array: UnsafeMemoryAccessible, UnsafeMutableMemoryAccessible {
-    public func withUnsafeMemory<Result>(_ action: (UnsafeMemory<Element>) throws -> Result) rethrows -> Result {
-        return try withUnsafeBufferPointer { ptr in
-            guard let base = ptr.baseAddress else {
-                fatalError("Array is missing its pointer")
+@testable import Surge
+
+/// - Note: Most functions of `Vector<Scalar>` simply call arithmetic functions
+///   directly modifying the vector's `[Scalar]` storage with minimal overhead.
+///   As such we're only explicitly benchmarking those function that actually
+///   are implemented on `Vector<Scalar>` itself, rather than `[Scalar]`
+class VectorTests: XCTestCase {
+    // MARK: - Multiplication: In Place
+
+    func test_mul_vector_matrix_double() {
+        measure_vector_matrix(of: Double.self) { measure in
+            measureMetrics([.wallClockTime], automaticallyStartMeasuring: false) {
+                measure(Surge.mul)
             }
-            let memory = UnsafeMemory(pointer: base, stride: 1, count: ptr.count)
-            return try action(memory)
         }
     }
 
-    public mutating func withUnsafeMutableMemory<Result>(_ action: (UnsafeMutableMemory<Element>) throws -> Result) rethrows -> Result {
-        return try withUnsafeMutableBufferPointer { ptr in
-            guard let base = ptr.baseAddress else {
-                fatalError("Array is missing its pointer")
+    func test_mul_vector_matrix_float() {
+        measure_vector_matrix(of: Float.self) { measure in
+            measureMetrics([.wallClockTime], automaticallyStartMeasuring: false) {
+                measure(Surge.mul)
             }
-            let memory = UnsafeMutableMemory(pointer: base, stride: 1, count: ptr.count)
-            return try action(memory)
         }
     }
 }

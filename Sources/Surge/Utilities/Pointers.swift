@@ -1,4 +1,4 @@
-// Copyright © 2014-2018 the Surge contributors
+// Copyright © 2014-2019 the Surge contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// MARK: 2 Parameter
+// MARK: - 2 Parameter
 
 /// Invokes the given closure with pointers to the given arguments (2 parameter version).
 ///
@@ -44,7 +44,7 @@ public func withUnsafeMutablePointers<A, B, Result>(_ a: inout A, _ b: inout B, 
     }
 }
 
-// MARK: 3 Parameter
+// MARK: - 3 Parameter
 
 /// Invokes the given closure with pointers to the given arguments (3 parameter version).
 ///

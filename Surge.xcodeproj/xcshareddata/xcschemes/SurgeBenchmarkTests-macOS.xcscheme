@@ -9,14 +9,14 @@
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "614AD3811FC0B125002BFE1C"
-               BuildableName = "Surge.framework"
-               BlueprintName = "Surge-watchOS"
+               BlueprintIdentifier = "CAAF5006233A7B6700CC0AA7"
+               BuildableName = "SurgeBenchmarkTests-macOS.xctest"
+               BlueprintName = "SurgeBenchmarkTests-macOS"
                ReferencedContainer = "container:Surge.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,6 +28,16 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "CAAF5006233A7B6700CC0AA7"
+               BuildableName = "SurgeBenchmarkTests-macOS.xctest"
+               BlueprintName = "SurgeBenchmarkTests-macOS"
+               ReferencedContainer = "container:Surge.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -40,15 +50,6 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "614AD3811FC0B125002BFE1C"
-            BuildableName = "Surge.framework"
-            BlueprintName = "Surge-watchOS"
-            ReferencedContainer = "container:Surge.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -59,9 +60,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "614AD3811FC0B125002BFE1C"
-            BuildableName = "Surge.framework"
-            BlueprintName = "Surge-watchOS"
+            BlueprintIdentifier = "CAAF5006233A7B6700CC0AA7"
+            BuildableName = "SurgeBenchmarkTests-macOS.xctest"
+            BlueprintName = "SurgeBenchmarkTests-macOS"
             ReferencedContainer = "container:Surge.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
