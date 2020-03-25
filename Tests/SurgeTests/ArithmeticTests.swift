@@ -350,7 +350,7 @@ class ArithmeticTests: XCTestCase {
 
     // MARK: - Square Root: In Place
 
-    func test_sqrt_in_place_array_array_float() {
+    func test_sqrt_in_place_array_float() {
         typealias Scalar = Float
 
         let lhs: [Scalar] = .monotonicNormalized()
@@ -363,7 +363,7 @@ class ArithmeticTests: XCTestCase {
         XCTAssertEqual(actual, expected, accuracy: 1e-8)
     }
 
-    func test_sqrt_in_place_array_array_double() {
+    func test_sqrt_in_place_array_double() {
         typealias Scalar = Double
 
         let lhs: [Scalar] = .monotonicNormalized()
@@ -414,7 +414,7 @@ class ArithmeticTests: XCTestCase {
 
         let actual: Scalar = Surge.dist(lhs, rhs)
 
-        let expected: Scalar = sqrt(zip(lhs, rhs).map({ $0 - $1 }).map({ $0 * $0 }).reduce(0.0, +))
+        let expected: Scalar = sqrt(zip(lhs, rhs).map { $0 - $1 }.map { $0 * $0 }.reduce(0.0, +))
 
         XCTAssertEqual(actual, expected, accuracy: 1e-6)
     }
@@ -427,7 +427,7 @@ class ArithmeticTests: XCTestCase {
 
         let actual: Scalar = Surge.dist(lhs, rhs)
 
-        let expected: Scalar = sqrt(zip(lhs, rhs).map({ $0 - $1 }).map({ $0 * $0 }).reduce(0.0, +))
+        let expected: Scalar = sqrt(zip(lhs, rhs).map { $0 - $1 }.map { $0 * $0 }.reduce(0.0, +))
 
         XCTAssertEqual(actual, expected, accuracy: 1e-6)
     }
